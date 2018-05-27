@@ -11,6 +11,7 @@ import { CounterComponent } from './components/counter/counter.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { MessengerService } from './components/services/messenger.service';
+import { ForumComponent } from './components/forum/forum.component';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { MessengerService } from './components/services/messenger.service';
         FetchDataComponent,
 		HomeComponent,
 		LoginComponent,
-		RegisterComponent
+        ForumComponent,
+		RegisterComponent,
     ],
     imports: [
         CommonModule,
@@ -32,7 +34,8 @@ import { MessengerService } from './components/services/messenger.service';
             { path: 'counter', component: CounterComponent },
 			{ path: 'fetch-data', component: FetchDataComponent },
 			{ path: 'login', component: LoginComponent },
-			{ path: 'register', component: RegisterComponent }
+            { path: 'register', component: RegisterComponent },
+            { path: 'forum', component: ForumComponent }
         ])
 	],
 	providers: [MessengerService]
