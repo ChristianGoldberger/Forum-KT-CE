@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <None Remove="BackgroundPicture.jpg" />
+    <None Remove="ClientApp\app\components\data\ForumUser.ts" />
     <None Remove="ClientApp\app\components\login\login.component.css" />
     <None Remove="ClientApp\app\components\register\register.component.css" />
   </ItemGroup>
@@ -43,6 +44,10 @@
 
   <ItemGroup>
     <None Include="wwwroot\dist\BackgroundPicture.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\app\components\data\ForumUser.ts" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">
