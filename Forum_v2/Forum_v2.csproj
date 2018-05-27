@@ -22,10 +22,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="BackgroundPicture.jpg" />
     <None Remove="ClientApp\app\components\login\login.component.css" />
+    <None Remove="ClientApp\app\components\register\register.component.css" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="BackgroundPicture.jpg">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="ClientApp\app\components\register\register.component.css">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Include="ClientApp\app\components\login\login.component.css">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
