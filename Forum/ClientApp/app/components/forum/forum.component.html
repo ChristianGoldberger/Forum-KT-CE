@@ -1,0 +1,24 @@
+
+
+<div class="col-md-6">
+
+
+
+
+    <h2> User Entry</h2>
+    <input #text type="text" id="postText" class="form-control" placeholder="Forum Post" required autofocus style="display: inline">
+    <button class="btn btn-default" style="float: right; display:inline" (click)="sendForumPost(text.value)">Enter Entry</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="hidden">Id</th>
+                <th>Text</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody id="posts">
+
+        </tbody>
+    </table>
+</div>
