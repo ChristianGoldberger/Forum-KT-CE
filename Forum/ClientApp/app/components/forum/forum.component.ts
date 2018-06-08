@@ -65,8 +65,14 @@ export class ForumComponent {
                 else {
                     console.log("Senden fehlgeschlagen");
                     //TODO: Fehlernachricht - Session abgelaufen
-                    this.http.put(this.baseUrl + 'api/User/username=' + this.user.username, {});
-                    AppInjector.get(MessengerService).changeMessage("loggedOut");
+                    this.http.put(this.baseUrl + 'api/User/username=' + this.user.username, {}).subscribe(result => {
+                        if (result) {
+                            AppInjector.get(MessengerService).changeMessage("loggedOut");
+                        }
+                        else {
+                            console.log("Ausloggen: Daten können nicht aktualisiert werden.");
+                        }
+                    });
                 }
             });
     }

@@ -125,7 +125,7 @@ namespace Forum_v2.Controllers
 
         // PUT: api/User/5
         [HttpPut("{username}")]
-        public async void Put(string username)
+        public async Task<bool> Put(string username)
         {
             using (SqlConnection connection = new SqlConnection(CON_STRING))
             {
@@ -138,11 +138,11 @@ namespace Forum_v2.Controllers
                     int lines = await command.ExecuteNonQueryAsync();
                     if (lines != 0)
                     {
-                        //Do something?
+                        return true;
                     }
                     else
                     {
-                        //Do something?
+                        return false;
                     }
                 }
             }
