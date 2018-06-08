@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MessengerService } from '../services/messenger.service';
 import { ForumUser } from '../data/ForumUser';
 import { Jsonp } from '@angular/http';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -14,7 +15,8 @@ export class AppComponent implements OnInit
     user: ForumUser;
     isLoggedIn = false;
 
-    constructor(private messengerService: MessengerService) { };
+    constructor(private messengerService: MessengerService,
+        private router: Router) { };
 
 	ngOnInit() {
 		//process initial message
@@ -25,7 +27,7 @@ export class AppComponent implements OnInit
             }
             if (!message || message === "loggedOut") {
                 this.isLoggedIn = false;
-                console.log('Received Message:' + message);
+                this.router.navigate(['login']);
                 return;
             }
             this.user = JSON.parse(message) as ForumUser;

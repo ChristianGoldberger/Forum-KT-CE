@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Forum_v2.Models;
-using Microsoft.AspNetCore.Http;
+using Forum.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Forum_v2.Controllers
@@ -22,82 +20,115 @@ namespace Forum_v2.Controllers
 
         // GET: api/Post
         [HttpGet]
-        public async Task<IEnumerable<ForumPost>> Get(DateTime lastOnline)
+        public async Task<IEnumerable<ForumPost>> Get(int key)
         {
-            List<ForumPost> users = new List<ForumPost>();
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
+            if (!Sessions.IsValidSession(key))
             {
-                await connection.OpenAsync();
-                const string commandString = "SELECT * FROM [dbo].[message]" +
-                    "WHERE sendDate > @value;";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+                List<ForumPost> temp = new List<ForumPost>();
+                temp.Add(new ForumPost(key.ToString(), "date", "user"));
+                return temp;
+                //return null;
+            }
+            try
+            {
+                List<ForumPost> posts = new List<ForumPost>();
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    command.Parameters.AddWithValue("value", lastOnline);
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    await connection.OpenAsync();
+                    const string commandString = "SELECT * FROM [dbo].[message] ORDER BY sendDate DESC;";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        while (await reader.ReadAsync())
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            users.Add(new ForumPost(reader.GetString(1), (reader.GetDateTime(2)).ToShortTimeString(), reader.GetString(3)));
+                            while (await reader.ReadAsync())
+                            {
+                                posts.Add(new ForumPost(reader.GetString(1), (reader.GetDateTime(2)).ToShortTimeString(), reader.GetString(3)));
+                            }
+                            return posts.ToArray();
                         }
-                        return users.ToArray();
                     }
                 }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
         // GET: api/Post/5
         [HttpGet("{id}")]
-        public async Task<ForumPost> Get(int id)
+        public async Task<ForumPost> Get(int id, int key)
         {
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
+            if (!Sessions.IsValidSession(key))
             {
-                await connection.OpenAsync();
-                const string commandString = "SELECT * FROM [dbo].[message] " +
-                    "WHERE id = @id;";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+                return null;
+            }
+            try { 
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    command.Parameters.AddWithValue("id", id);
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    await connection.OpenAsync();
+                    const string commandString = "SELECT * FROM [dbo].[message] " +
+                        "WHERE id = @id;";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        if (await reader.ReadAsync())
+                        command.Parameters.AddWithValue("id", id);
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string message = reader.GetString(1);
-                            string sendDate = (reader.GetDateTime(2)).ToShortTimeString();
-                            string username = reader.GetString(3);
-                            username = Regex.Replace(username, " ", "");
-                            //return new ForumUser(username,  + ":" + Regex.Replace(password, " ", ""));
-                            return new ForumPost(message, sendDate, username);
+                            if (await reader.ReadAsync())
+                            {
+                                string message = reader.GetString(1);
+                                string sendDate = (reader.GetDateTime(2)).ToShortTimeString();
+                                string username = reader.GetString(3);
+                                username = Regex.Replace(username, " ", "");
+                                //return new ForumUser(username,  + ":" + Regex.Replace(password, " ", ""));
+                                return new ForumPost(message, sendDate, username);
+                            }
+                            return null;
                         }
-                        return null;
                     }
                 }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
         // POST: api/Post
         [HttpPost]
-        public async Task<ForumPost> Post([FromBody]ForumPost post)
+        public async Task<ForumPost> Post([FromBody]ForumPost post, int key)
         {
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
+            if (!Sessions.IsValidSession(key))
             {
-                await connection.OpenAsync();
-                const string commandString = "INSERT INTO [dbo].[message](message, sendDate, username) VALUES ( @text, GETDATE(), @username);";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+                return null;
+            }
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    command.Parameters.AddWithValue("username", post.Username);
-                    command.Parameters.AddWithValue("text", post.Text);
-                    int lines = await command.ExecuteNonQueryAsync();
-                    if (lines != 0)
+                    await connection.OpenAsync();
+                    const string commandString = "INSERT INTO [dbo].[message](message, sendDate, username) VALUES ( @text, GETDATE(), @username);";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        return post;
+                        command.Parameters.AddWithValue("username", post.Username);
+                        command.Parameters.AddWithValue("text", post.Text);
+                        int lines = await command.ExecuteNonQueryAsync();
+                        if (lines != 0)
+                        {
+                            return post;
+                        }
+                        return null;
                     }
-                    return null;
                 }
             }
-        }
+            catch(Exception)
+            {
+                return null;
+            }
+}
         
         // PUT: api/Post/5
         [HttpPut("{id}")]

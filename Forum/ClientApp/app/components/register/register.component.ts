@@ -49,29 +49,16 @@ export class RegisterComponent
                         console.log("Registrieren erfolgreich");
                         let user = result as ForumUser;
                         console.log(user.username + ", " + user.password + ", " + user.lastOnline);
-                        AppInjector.get(MessengerService).changeMessage("loggedIn");
+                        AppInjector.get(MessengerService).changeMessage(JSON.stringify(user));
                         this.router.navigate(['home']);
                     }
                     else {
                         console.log("Registrieren fehlgeschlagen");
-                        this.router.navigate(['login']);
+                        //TODO: Fehlernachricht
                     }
             });
 			//this.location.replaceState('/'); // clears browser history so they can't navigate with back button
 		}
 
-	}
-	//constructor(
-	//	private messengerService: MessengerService,
-	//	private injector: Injector
-	//) {
-	//	AppInjector = this.injector;
-	//}
-	//public onClick()
-	//{
-		
-	//	AppInjector.get(MessengerService).changeMessage("loggedIn");
-		
-	//}
-	
+	}	
 }

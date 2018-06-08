@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Forum_v2.Models;
-using Microsoft.AspNetCore.Http;
+using Forum.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Forum_v2.Controllers
@@ -24,23 +22,30 @@ namespace Forum_v2.Controllers
         [HttpGet]
         public async Task<IEnumerable<ForumUser>> Get()
         {
-            List<ForumUser> users = new List<ForumUser>();
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
-            {
-                await connection.OpenAsync();
-                const string commandString = "SELECT * FROM [dbo].[user];";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+            try
+            { 
+                List<ForumUser> users = new List<ForumUser>();
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    await connection.OpenAsync();
+                    const string commandString = "SELECT * FROM [dbo].[user];";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        while (await reader.ReadAsync())
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            users.Add(new ForumUser(reader.GetString(0), "", (reader.GetDateTime(1)).ToShortTimeString()));
+                            while (await reader.ReadAsync())
+                            {
+                                users.Add(new ForumUser(reader.GetString(0), "", (reader.GetDateTime(1)).ToShortTimeString()));
+                            }
+                            return users.ToArray();
                         }
-                        return users.ToArray();
                     }
                 }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
@@ -48,32 +53,40 @@ namespace Forum_v2.Controllers
         [HttpGet("{username}")]
         public async Task<ForumUser> Get(string username, string password)
         {
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
-            {
-                await connection.OpenAsync();
-                const string commandString = "SELECT * FROM [dbo].[user] " +
-                    "WHERE username = @username;";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+            try
+            { 
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    command.Parameters.AddWithValue("username", username);
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    await connection.OpenAsync();
+                    const string commandString = "SELECT * FROM [dbo].[user] " +
+                        "WHERE username = @username;";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        if (await reader.ReadAsync())
+                        command.Parameters.AddWithValue("username", username);
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
                         {
-                            string name = reader.GetString(0);
-                            string lastOnline = (reader.GetDateTime(1)).ToShortTimeString();
-                            string pwd = reader.GetString(2);
-                            pwd = Regex.Replace(pwd, " ", "");
-                            //return new ForumUser(username,  + ":" + Regex.Replace(password, " ", ""));
-                            if (pwd.Equals(Regex.Replace(password, " ", "")))
+                            if (await reader.ReadAsync())
                             {
-                                return new ForumUser(username, "", lastOnline);
+                                string name = reader.GetString(0);
+                                string lastOnline = (reader.GetDateTime(1)).ToShortTimeString();
+                                string pwd = reader.GetString(2);
+                                pwd = Regex.Replace(pwd, " ", "");
+                                //return new ForumUser(username,  + ":" + Regex.Replace(password, " ", ""));
+                                if (pwd.Equals(Regex.Replace(password, " ", "")))
+                                {
+                                    int key = Sessions.GenerateKey();
+                                    return new ForumUser(username, key.ToString(), lastOnline);
+                                }
                             }
+                            return null;
                         }
-                        return null;
                     }
                 }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
@@ -81,39 +94,47 @@ namespace Forum_v2.Controllers
         [HttpPost]
         public async Task<ForumUser> Post([FromBody]ForumUser user)
         {
-            //return user;
-            using (SqlConnection connection = new SqlConnection(CON_STRING))
+            try
             {
-                await connection.OpenAsync();
-                const string commandString = "INSERT INTO [dbo].[user](username, lastOnline, pwd) VALUES ( @username, GETDATE(), @password);";
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+                using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
-                    command.Parameters.AddWithValue("username", user.Username);
-                    command.Parameters.AddWithValue("password", user.Password);
-                    int lines = await command.ExecuteNonQueryAsync();
-                    if (lines != 0)
+                    await connection.OpenAsync();
+                    const string commandString = "INSERT INTO [dbo].[user](username, lastOnline, pwd) SELECT @username, GETDATE(), @password " +
+                        "WHERE NOT EXISTS (SELECT username FROM [dbo].[user] WHERE username = @username);";
+
+                    using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
-                        return user;
+                        command.Parameters.AddWithValue("username", user.Username);
+                        command.Parameters.AddWithValue("password", user.Password);
+                        int lines = await command.ExecuteNonQueryAsync();
+                        if (lines != 0)
+                        {
+                            int key = Sessions.GenerateKey();
+                            user.Password = key.ToString();
+                            return user;
+                        }
+                        return null;
                     }
-                    return null;
                 }
+            }
+            catch(Exception)
+            {
+                return null;
             }
         }
 
         // PUT: api/User/5
         [HttpPut("{username}")]
-        public async void Put(string username, DateTime value)
+        public async void Put(string username)
         {
             using (SqlConnection connection = new SqlConnection(CON_STRING))
             {
                 await connection.OpenAsync();
-                const string commandString = "UPDATE [dbo].[user] SET lastOnline = @value WHERE username = @username;";
+                const string commandString = "UPDATE [dbo].[user] SET lastOnline = GETDATE() WHERE username = @username;";
 
                 using (SqlCommand command = new SqlCommand(commandString, connection))
                 {
                     command.Parameters.AddWithValue("username", username);
-                    command.Parameters.AddWithValue("value", value);
                     int lines = await command.ExecuteNonQueryAsync();
                     if (lines != 0)
                     {

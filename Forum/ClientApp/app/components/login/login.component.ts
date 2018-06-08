@@ -25,8 +25,7 @@ export class LoginComponent
 	public onClick(username:string, password:string)
     {
         console.log("Sign in");
-		//var username = ((document.getElementById("inputUser") as HTMLInputElement).value);
-        //var password = ((document.getElementById("inputPassword") as HTMLInputElement).value);
+
         this.http.get(this.baseUrl + 'api/User/' + username +
             "?password=" + password).subscribe(result => {
                 console.log("Result!!!");
@@ -42,12 +41,6 @@ export class LoginComponent
                     console.log("Wrong User!!!");
                 }
             });	
-		//ToDo Check Username and Password from Database
-		/*if (username === "admin" && password === "admin")
-		{
-			AppInjector.get(MessengerService).changeMessage("loggedIn");
-			this.router.navigate(['home']);
-		}*/	
 	}
 	
 }
