@@ -104,7 +104,7 @@ export class ForumComponent {
 
         row.appendChild(textCol);
         row.appendChild(userCol);
-        table.appendChild(row);
+        table.insertBefore(row, table.firstChild);
     }
 
     subscribeToPushNotifications() {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Forum.Controllers;
 using Forum.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,7 +36,7 @@ namespace Forum_v2.Controllers
                 using (SqlConnection connection = new SqlConnection(CON_STRING))
                 {
                     await connection.OpenAsync();
-                    const string commandString = "SELECT * FROM [dbo].[message] ORDER BY sendDate DESC;";
+                    const string commandString = "SELECT * FROM [dbo].[message] ORDER BY sendDate ASC;";
 
                     using (SqlCommand command = new SqlCommand(commandString, connection))
                     {
@@ -118,6 +119,12 @@ namespace Forum_v2.Controllers
                         int lines = await command.ExecuteNonQueryAsync();
                         if (lines != 0)
                         {
+                            var payload = new PushNotificationPayload
+                            {
+                                Msg = post.Text,
+                                Icon = "C:/Temp/icon192x192.png",
+                            };
+                            ForumPostSubscriptions.PushAllSubs(payload);
                             return post;
                         }
                         return null;

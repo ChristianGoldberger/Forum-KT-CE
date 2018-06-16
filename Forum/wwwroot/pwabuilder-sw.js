@@ -36,7 +36,7 @@ self.addEventListener('refreshOffline', function (response) {
 self.addEventListener('push', event => {
     if (event.data) {
         var payload = event.data.json();
-        var title = 'Lunchbox';
+        var title = 'Clan Page';
         var options = {
             body: payload.Msg,
             icon: payload.Icon
