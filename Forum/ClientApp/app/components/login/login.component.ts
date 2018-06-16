@@ -25,7 +25,10 @@ export class LoginComponent
 	public onClick(username:string, password:string)
     {
         console.log("Sign in");
+        if (username.length == 0 || password.length == 0) {
+            console.log("Kein Username oder PW angegeben");
 
+        } else {
         this.http.get(this.baseUrl + 'api/User/' + username +
             "?password=" + password).subscribe(result => {
                 console.log("Result!!!");
@@ -40,7 +43,8 @@ export class LoginComponent
 
                     console.log("Wrong User!!!");
                 }
-            });	
+                });	
+        }
 	}
 	
 }
