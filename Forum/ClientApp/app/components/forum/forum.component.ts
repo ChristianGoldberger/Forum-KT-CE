@@ -59,8 +59,38 @@ export class ForumComponent {
             }
         });
     }
+    deleteAllEntries() {
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json'
+            })
+        };
 
-    sendForumPost(text : string) {
+        if (this.user.username == "admin") {
+
+            this.http.delete(this.baseUrl + 'api/Post',
+                httpOptions)
+                .subscribe(result => {
+                    if (result) {
+                        console.log("Loeschen nicht erfolgreich");
+
+                    }
+                    else {
+                        console.log("Loeschen erfolgreich");
+
+                    }
+                });
+
+        } else {
+            console.log("Nur Admin darf Eintraege loeschen");
+
+        }
+   
+       
+
+    }
+
+    sendForumPost(text: string) {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json'
@@ -91,7 +121,6 @@ export class ForumComponent {
                 }
             });
     }
-
     private appendForumPost(username : string, text : string) {
         let table = (document.getElementById("posts") as HTMLTableElement);
         let row = document.createElement("tr");

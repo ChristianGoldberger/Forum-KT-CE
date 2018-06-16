@@ -8,7 +8,7 @@
     <h2> User Entry</h2>
     <input #text type="text" id="postText" class="form-control" placeholder="Forum Post" required autofocus style="display: inline">
     <button class="btn btn-default" style="float: right; display:inline" (click)="sendForumPost(text.value)">Enter Entry</button>
-
+    <button class="btn btn-default" style="float: right; display:inline" (click)="deleteAllEntries()">Delete Entries</button>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -17,9 +17,7 @@
                 <th>Username</th>
             </tr>
         </thead>
-        <tbody id="posts">
-
-        </tbody>
+        <tbody id="posts"></tbody>
     </table>
     <script>
         const channel = new BroadcastChannel('post');

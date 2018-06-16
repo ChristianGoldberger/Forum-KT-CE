@@ -29,6 +29,7 @@ export class LoginComponent
             console.log("Kein Username oder PW angegeben");
 
         } else {
+
         this.http.get(this.baseUrl + 'api/User/' + username +
             "?password=" + password).subscribe(result => {
                 console.log("Result!!!");

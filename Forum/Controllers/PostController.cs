@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Forum.Controllers;
 using Forum.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using WebPush;
 
 namespace Forum_v2.Controllers
 {
@@ -143,10 +145,27 @@ namespace Forum_v2.Controllers
         {
         }
         
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // DELETE: api/ApiWithActions/
+        [HttpDelete]
+        public  async Task DeleteAsync()
         {
+            using (SqlConnection connection = new SqlConnection(CON_STRING))
+            {
+                await connection.OpenAsync();
+                const string commandString = "DELETE FROM[dbo].[message]";
+                using (SqlCommand command = new SqlCommand(commandString, connection))
+                {
+
+                    int lines = await command.ExecuteNonQueryAsync();
+
+                    Console.WriteLine("Löschen erfolgreich!");
+
+
+              
+
+                }
+            }
+           
         }
     }
 }
