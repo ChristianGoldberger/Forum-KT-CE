@@ -82,7 +82,7 @@ export class ForumComponent {
                 });
 
         } else {
-            console.log("Nur Admin darf Eintraege loeschen");
+            alert("Nur Admin darf Eintraege loeschen");
 
         }
    

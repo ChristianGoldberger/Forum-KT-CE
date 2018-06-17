@@ -26,7 +26,7 @@ export class LoginComponent
     {
         console.log("Sign in");
         if (username.length == 0 || password.length == 0) {
-            console.log("Kein Username oder PW angegeben");
+            alert("Kein Username oder PW angegeben");
 
         } else {
 
@@ -41,8 +41,8 @@ export class LoginComponent
                     this.router.navigate(['home']);
                 }
                 else {
-
-                    console.log("Wrong User!!!");
+                    alert("Wrong Username or Password");
+                  
                 }
                 });	
         }
